@@ -53,6 +53,7 @@ SELECT
 	grade_point_used,
 	count(student_id) AS count,
 	round(count(student_id)/(
+		-- Subquery to find percentage of students receiving that grade (only for core classes)
 		SELECT count(g.student_id)
 		FROM grades AS g 
 		LEFT JOIN courses AS c USING(course_id, course_subject, course_title)
