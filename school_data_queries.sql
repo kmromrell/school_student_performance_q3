@@ -128,6 +128,7 @@ ORDER BY average DESC;
 
 CREATE TABLE all_student_data AS ( 
 	SELECT
+		g.student_id,
 		g.grade,
 		g.grade_point_dec,
 		g.grade_point_used,
@@ -146,10 +147,10 @@ CREATE TABLE all_student_data AS (
 	    		WHEN 8 THEN a.period_8
 	    		ELSE NULL
 	  	END, 0) AS absences,
-	  	
+	  		  	
 	  	-- Retrieve tardies by period; default to 0 to account for students with no tardies
 	  	COALESCE(CASE g.period
-			    WHEN 1 THEN tar.period_1
+			    WHEN 1 THEN tar.period_1 
 	   			WHEN 2 THEN tar.period_2
 				WHEN 3 THEN tar.period_3
 	    		WHEN 4 THEN tar.period_4
@@ -159,6 +160,7 @@ CREATE TABLE all_student_data AS (
 	    		WHEN 8 THEN tar.period_8
 	    		ELSE 0
 	  	END, 0) AS tardies,
+	  	COALESCE(a.support_seminar, 0) AS ss_absences,
 	  	gpa.gpa,
 	  	gpa.credits_attempted,
 	  	gpa.credits_completed,
@@ -187,10 +189,11 @@ ADD COLUMN absence_perc DECIMAL(3,0)
 	GENERATED ALWAYS AS (absences/20*100) STORED,
 ADD COLUMN tardy_perc DECIMAL (3,0)
 	GENERATED ALWAYS AS (tardies/20*100) STORED,
+ADD COLUMN ss_abs_perc DECIMAL(4,1)
+	GENERATED ALWAYS AS (ss_absences/18*100) STORED,
 ADD COLUMN credit_perc DECIMAL(4,1)
-	GENERATED ALWAYS AS (credits_completed/credits_attempted*100);
+	GENERATED ALWAYS AS (credits_completed/credits_attempted*100) STORED;
 
 
--- Future ideas: count AP classes taken per student, check students who skip support seminar
-
+-- Future ideas: count AP classes taken per student
 
