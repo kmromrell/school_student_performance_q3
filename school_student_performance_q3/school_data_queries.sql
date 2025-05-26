@@ -116,6 +116,17 @@ LIMIT 20;
 
 
 
+
+
+
+/* English department analytics 
+Unless otherwise stated, queries are considering these conditions:
+	- Querying only core English classes (not electives/ACS)
+	- Using a +/- grade scale (e.g., a B+ is a 3.3, not a 3) -- more specific, but not used to calculate GPA */
+
+
+
+
 -- English department average grade by course (including electives/ACS)
 SELECT 
 	course_title,
