@@ -285,3 +285,36 @@ CREATE TABLE all_student_data AS (
 	LEFT JOIN tag as tag USING(student_id)
 	LEFT JOIN transfer as tr USING(student_id)
 );
+
+-- Adding columns for percentages of absences, tardies, and credit completion; adding pass/fail and A-C/D-F
+
+ALTER TABLE all_student_data
+ADD COLUMN absence_perc DECIMAL(3,0) 
+	GENERATED ALWAYS AS ((absences/20)*100) STORED,
+ADD COLUMN tardy_perc DECIMAL (3,0)
+	GENERATED ALWAYS AS ((tardies/20)*100) STORED,
+ADD COLUMN ss_abs_perc DECIMAL(4,1)
+	GENERATED ALWAYS AS ((ss_absences/18)*100) STORED,
+ADD COLUMN credit_perc DECIMAL(4,1)
+	GENERATED ALWAYS AS ((credits_completed/credits_attempted)*100) STORED,
+ADD COLUMN pass_or_fail INTEGER 
+	GENERATED ALWAYS AS 
+	(CASE
+		WHEN grade_point_used>=1 THEN 1
+		ELSE 0
+	END) STORED,
+ADD COLUMN c_or_higher INTEGER 
+	GENERATED ALWAYS AS 
+	(CASE
+		WHEN grade_point_used>=2 THEN 1
+		ELSE 0
+	END) STORED,
+ADD COLUMN absence_rate VARCHAR(10) 
+	GENERATED ALWAYS AS 
+	(CASE
+		WHEN absence_perc BETWEEN 0 AND 9.9 THEN 'low'
+		WHEN absence_perc BETWEEN 10 AND 19.9 THEN 'medium'
+		WHEN absence_perc BETWEEN 20 AND 39.9 THEN 'high'
+		WHEN absence_perc >=40 THEN 'very high'
+		ELSE 'error'
+	END) STORED;
