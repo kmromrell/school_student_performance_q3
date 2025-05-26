@@ -50,6 +50,18 @@ FROM grades
 GROUP BY course_subject
 ORDER BY average DESC;
 
+-- Idnetifying students who aren't listed on the GPA table -- possible non-diploma seeking students?
+
+SELECT 
+	DISTINCT s.student_id,
+	s.first_name,
+	s.last_name,
+	s.grade_level
+FROM grades AS g
+LEFT JOIN gpa USING(student_id)
+LEFT JOIN students AS s USING(student_id)
+WHERE gpa.student_id IS NULL;
+
 
 
 -- English department analytics (looking only at core English classes)
