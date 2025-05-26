@@ -112,3 +112,101 @@ GROUP BY course_title
 HAVING count(course_title)>=20
 ORDER BY average ASC
 LIMIT 20;
+
+
+
+
+-- English department average grade by course (including electives/ACS)
+SELECT 
+	course_title,
+	round(avg(grade_point_dec), 2) AS average
+FROM grades
+WHERE 
+	course_subject='English'
+GROUP BY course_title
+ORDER BY average DESC;
+
+-- English department average grade by teacher
+
+SELECT 
+	teacher_id,
+	round(avg(grade_point_dec), 2) AS average
+FROM grades AS g
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
+WHERE 
+	course_subject='English' 
+	AND c.core_req=1
+	AND course_title !='Adv Comm Skills'
+GROUP BY teacher_id
+ORDER BY average DESC;
+
+-- English department average grade for non-honors/AP English classes by teacher
+
+SELECT 
+	teacher_id,
+	round(avg(grade_point_dec), 2) AS average
+FROM grades AS g
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
+WHERE 
+	course_subject='English'
+	AND c.core_req=1
+	AND course_title !='Adv Comm Skills'
+	AND c.weighted=0
+GROUP BY teacher_id
+ORDER BY average DESC;
+
+-- English department average grade (no +/-; grades used for GPA) for non-honors/AP English classes by teacher
+SELECT 
+	teacher_id,
+	round(avg(grade_point_used), 2) AS average
+FROM grades AS g
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
+WHERE 
+	course_subject='English'
+	AND c.core_req=1
+	AND course_title !='Adv Comm Skills'
+	AND c.weighted=0
+GROUP BY teacher_id
+ORDER BY average DESC;
+
+-- English department average grade for honors/AP classes by teacher
+SELECT 
+	teacher_id,
+	round(avg(grade_point_dec), 2) AS average
+FROM grades AS g
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
+WHERE 
+	course_subject='English'
+	AND c.weighted=1
+GROUP BY teacher_id
+ORDER BY average DESC;
+
+-- English department average grade by course and teacher
+
+SELECT 
+	teacher_id,
+	course_title,
+	round(avg(grade_point_dec), 2) AS average
+FROM grades AS g
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
+WHERE 
+	course_subject='English'
+	AND c.core_req=1
+	AND course_title !='Adv Comm Skills'
+GROUP BY course_title, teacher_id
+ORDER BY average DESC;
+
+-- English department average grade by course (including electives/ACS) and teacher
+
+SELECT 
+	teacher_id,
+	course_title,
+	round(avg(grade_point_dec), 2) AS average
+FROM grades AS g
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
+WHERE 
+	course_subject='English'
+GROUP BY course_title, teacher_id
+ORDER BY average DESC;
+
+
