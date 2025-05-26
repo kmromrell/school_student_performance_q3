@@ -181,3 +181,11 @@ CREATE TABLE all_data AS (
 	LEFT JOIN tag as tag USING(student_id)
 	LEFT JOIN transfer as tr USING(student_id)
 );
+
+ALTER TABLE all_data
+ADD COLUMN absence_perc DECIMAL(3,2) 
+	GENERATED ALWAYS AS (absences/20) STORED,
+ADD COLUMN tardy_perc DECIMAL (3,2)
+	GENERATED ALWAYS AS (tardies/20) STORED,
+ADD COLUMN credit_perc DECIMAL(3,2)
+	GENERATED ALWAYS AS (credits_completed/credits_attempted);
