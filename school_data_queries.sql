@@ -64,3 +64,57 @@ WHERE course_subject='English'
 GROUP BY teacher_id
 ORDER BY average DESC;
 
+-- English department average grade (using +/-) by teacher (not including honors/AP)
+
+SELECT 
+	round(avg(grade_point_dec), 2) AS average,
+	teacher_id
+FROM grades
+WHERE course_subject='English'
+	AND course_title NOT LIKE '%Honors%'
+	AND course_title NOT LIKE '%AP%'
+GROUP BY teacher_id
+ORDER BY average DESC;
+
+-- English department average grade (no +/-; used for GPA) by teacher (not including honors/AP)
+SELECT 
+	round(avg(grade_point_used), 2) AS average,
+	teacher_id
+FROM grades
+WHERE course_subject='English'
+	AND course_title NOT LIKE '%Honors%'
+	AND course_title NOT LIKE '%AP%'
+GROUP BY teacher_id
+ORDER BY average DESC;
+
+-- English department honors average grade by teacher
+SELECT 
+	round(avg(grade_point_dec), 2) AS average,
+	teacher_id
+FROM grades
+WHERE course_subject='English'
+	AND (course_title LIKE '%Honors%'
+	OR course_title LIKE '%AP%')
+GROUP BY teacher_id
+ORDER BY average DESC;
+
+-- English department average grade by course and teacher
+
+SELECT 
+	round(avg(grade_point_dec), 2) AS average,
+	course_title,
+	teacher_id
+FROM grades
+WHERE course_subject='English'
+GROUP BY course_title, teacher_id
+ORDER BY average DESC;
+
+-- English department average grade by course
+SELECT 
+	round(avg(grade_point_dec), 2) AS average,
+	course_title
+FROM grades
+LEFT JOIN teachers USING(teacher_id)
+WHERE course_subject='English'
+GROUP BY course_title
+ORDER BY average DESC;
