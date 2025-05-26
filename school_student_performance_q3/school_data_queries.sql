@@ -358,3 +358,19 @@ ORDER BY avg_absence_perc ASC;
 
 
 
+
+-- Miscellaneous
+
+-- Identifying students who aren't listed on the GPA table -- possible non-diploma seeking students?
+
+SELECT 
+	DISTINCT s.student_id,
+	s.first_name,
+	s.last_name,
+	s.grade_level
+FROM grades AS g
+LEFT JOIN gpa USING(student_id)
+LEFT JOIN students AS s USING(student_id)
+WHERE gpa.student_id IS NULL;
+
+-- Future ideas: count AP classes taken per student
