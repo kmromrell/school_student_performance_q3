@@ -189,3 +189,8 @@ ADD COLUMN tardy_perc DECIMAL (3,2)
 	GENERATED ALWAYS AS (tardies/20) STORED,
 ADD COLUMN credit_perc DECIMAL(3,2)
 	GENERATED ALWAYS AS (credits_completed/credits_attempted);
+
+
+-- Future ideas: count AP classes taken per student, check students who skip support seminar
+
+
