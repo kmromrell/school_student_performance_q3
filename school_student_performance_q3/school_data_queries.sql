@@ -318,3 +318,43 @@ ADD COLUMN absence_rate VARCHAR(10)
 		WHEN absence_perc >=40 THEN 'very high'
 		ELSE 'error'
 	END) STORED;
+
+
+-- Avgerage grade/pass percent by absence percentage
+SELECT 
+	absence_perc,
+	round(avg(grade_point_dec), 2) AS avg_grade,
+	round(avg(pass_or_fail), 2) AS pass_perc,
+	count(absence_perc) AS count
+FROM all_student_data
+GROUP BY absences
+ORDER BY absences ASC;
+
+-- Grades/pass percentage as grouped by absence rates
+SELECT 
+	absence_rate,
+	round(avg(absence_perc), 2) AS avg_absence_perc,
+	round(avg(grade_point_dec), 2) AS avg_grade,
+	round(avg(pass_or_fail), 2) AS pass_perc,
+	count(absence_rate) AS count
+FROM all_student_data
+GROUP BY absence_rate
+ORDER BY avg_absence_perc ASC;
+
+
+-- Grades/pass percentage as grouped by absence rates for core classes
+SELECT 
+	absence_rate,
+	round(avg(absence_perc), 2) AS avg_absence_perc,
+	round(avg(absences), 2) AS avg_absences,
+	round(avg(grade_point_dec), 2) AS avg_grade,
+	round(avg(pass_or_fail), 2) AS pass_perc,
+	count(absence_rate) AS count
+FROM all_student_data AS a 
+LEFT JOIN courses AS c USING(course_title)
+WHERE core_req=1
+GROUP BY absence_rate
+ORDER BY avg_absence_perc ASC;
+
+
+
