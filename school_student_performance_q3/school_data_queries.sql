@@ -268,6 +268,9 @@ CREATE TABLE all_student_data AS (
 	  	gpa.credits_attempted,
 	  	gpa.credits_completed,
 	  	s.gender,
+	  	s.gender_male,
+	  	s.gender_female,
+	  	s.gender_nonbinary,
 	  	s.grade_level,
 	  	
 	  	-- Demographic fields; default to 0 for Boolean logic (if unlisted, not part of program)
@@ -360,6 +363,12 @@ ORDER BY avg_absence_perc ASC;
 
 
 
+/*Findings
+	- Attendance is the single largest factor in a students' grade, both individually and when controlling for other variables
+	- While ELL students do have noticeably lower grades/pass rates than their non-ELL peers, the difference is not statistically significant (to a p>.01 level) when controlling for attendance and SPED status
+	- There is no statistically significant different between transfer and non-transfer students
+
+*/
 
 -- Miscellaneous
 
