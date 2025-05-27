@@ -274,7 +274,8 @@ CREATE TABLE all_student_data AS (
 	  	COALESCE(e.ell, 0) AS ell,
 	    COALESCE(s504.sec_504, 0) AS sec_504,
 	    COALESCE(sped.sped, 0) AS sped,
-	    COALESCE(tag.tag, 0) AS tag
+	    COALESCE(tag.tag, 0) AS tag,
+	    COALESCE(tr.transfer, 0) AS transfer
 	FROM grades AS g
 	LEFT JOIN absences AS a USING(student_id)
 	LEFT JOIN tardies as tar USING(student_id)
