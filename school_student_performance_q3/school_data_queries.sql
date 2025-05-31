@@ -360,18 +360,24 @@ SELECT
 	round(avg(absences), 2) AS avg_absences,
 	round(avg(grade_point_dec), 2) AS avg_grade,
 	round(avg(pass_or_fail), 2) AS pass_perc,
+	round(avg(c_or_higher), 2) AS c_and_up_perc,
+		count(absence_rate) AS count
 FROM all_student_data AS a 
 LEFT JOIN courses AS c USING(course_title)
 WHERE core_req=1
 GROUP BY absence_rate
 ORDER BY avg_absence_perc ASC;
 
+-- Absences as grouped by support status
+
+
+
 
 
 /*Findings
 	- Attendance is the single largest factor in a students' grade, both individually and when controlling for other variables
 	- While ELL students do have noticeably lower grades/pass rates than their non-ELL peers, the difference is not statistically significant (to a p>.01 level) when controlling for attendance and SPED status
-	- There is no statistically significant different between transfer and non-transfer students
+	- After controlling for attendance and other demographic factors, there is no statistically significant different between transfer status or genders. Depending on the test, there is often no statistically significant different between ELL status, but if I use a higher p value (allow for more possibility of error), it has a 
 
 */
 
