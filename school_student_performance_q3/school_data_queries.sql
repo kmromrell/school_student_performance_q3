@@ -402,3 +402,26 @@ CREATE TABLE all_with_core AS (
 );
 
 -- Future ideas: count AP classes taken per student
+
+-- Number of students taking x AP/dual-credit classes (with avg GPAs)
+
+SELECT
+	count(student_id) AS total_students,
+	num_of_APs,
+	round(avg(gpa), 2) AS avg_gpa
+FROM (
+	SELECT
+		g.student_id,
+		sum(c.ap_or_dual_credit) AS num_of_APs
+	FROM courses AS c 
+	LEFT JOIN grades AS g 
+		USING(course_id)
+	GROUP BY g.student_id
+) AS ap
+LEFT JOIN gpa 
+USING(student_id)
+GROUP BY num_of_APs
+ORDER BY num_of_APs DESC;
+
+
+
