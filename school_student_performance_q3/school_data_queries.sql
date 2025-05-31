@@ -395,4 +395,10 @@ LEFT JOIN gpa USING(student_id)
 LEFT JOIN students AS s USING(student_id)
 WHERE gpa.student_id IS NULL;
 
+CREATE TABLE all_with_core AS (
+	SELECT *
+	FROM all_student_data
+	LEFT JOIN courses USING(course_title, course_subject)
+);
+
 -- Future ideas: count AP classes taken per student
