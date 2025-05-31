@@ -32,7 +32,7 @@ ORDER BY grade_point_dec DESC;
 -- Count of grades received (A=4, B=3, etc.) in core classes
 
 SELECT
-	grade_point_used,
+	grade_point_used AS grade_for_core,
 	count(student_id) AS count,
 	round(count(student_id)/(
 		SELECT count(g.student_id)
@@ -50,7 +50,7 @@ ORDER BY grade_point_used DESC;
 -- Count of grades received (A=4, B=3, etc.) in non-core classes
 
 SELECT
-	grade_point_used,
+	grade_point_used AS grade_non_core,
 	count(student_id) AS count,
 	round(count(student_id)/(
 		-- Subquery to find percentage of students receiving that grade (only for core classes)
@@ -103,7 +103,7 @@ WHERE
 GROUP BY course_subject
 ORDER BY average DESC;
 
--- Average grade by course, identifying the 20 hardest courses (only including courses with at least 20 students)
+-- Average grade by course, identifying the 15 hardest courses (only including courses with at least 20 students)
 SELECT 
 	course_title,
 	round(avg(grade_point_dec), 2) AS average,
@@ -112,7 +112,7 @@ FROM grades
 GROUP BY course_title
 HAVING count(course_title)>=20
 ORDER BY average ASC
-LIMIT 20;
+LIMIT 15;
 
 
 
@@ -360,7 +360,6 @@ SELECT
 	round(avg(absences), 2) AS avg_absences,
 	round(avg(grade_point_dec), 2) AS avg_grade,
 	round(avg(pass_or_fail), 2) AS pass_perc,
-	count(absence_rate) AS count
 FROM all_student_data AS a 
 LEFT JOIN courses AS c USING(course_title)
 WHERE core_req=1
