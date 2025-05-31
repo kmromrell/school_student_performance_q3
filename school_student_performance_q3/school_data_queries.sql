@@ -384,6 +384,7 @@ ORDER BY avg_absence_perc ASC;
 -- Miscellaneous
 
 -- Identifying students who aren't listed on the GPA table -- possible non-diploma seeking students?
+-- Identify absence rates by different groups -- who are we struggling with attendance most?
 
 SELECT 
 	DISTINCT s.student_id,
