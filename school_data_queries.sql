@@ -1,4 +1,8 @@
--- What are the percentages at which each grade point is received (e.g., 3, not 3.3)
+-- Looking at grades overall to create familiarity
+
+
+-- Count of grades received (A=4, B=3, etc.)
+
 SELECT
 	grade_point_used,
 	count(student_id) AS count,
@@ -11,125 +15,218 @@ GROUP BY
 	grade_point_used
 ORDER BY grade_point_used DESC;
 
+-- Count of grades received using +/- grades (e.g., B+ is 3.3, not 3)
 
--- How many As, Bs, Cs, Ds, and Fs are given out in core subjects
 SELECT
-	grade_point_used,
+	grade_point_dec,
 	count(student_id) AS count,
 	round(count(student_id)/(
 		SELECT count(g.student_id)
 		FROM grades AS g 
-		WHERE course_subject IN ('English', 'Science', 'Mathematics', 'Social Studies')
 	)*100, 2) AS perc
 FROM grades
-WHERE course_subject IN ('English', 'Science', 'Mathematics', 'Social Studies')
 GROUP BY 
-	grade_point_used
-ORDER BY grade_point_used DESC;
+	grade_point_dec
+ORDER BY grade_point_dec DESC;
 
--- How many As, Bs, Cs, Ds, and Fs are given out in non-core subjects
+-- Count of grades received (A=4, B=3, etc.) in core classes
+
 SELECT
-	grade_point_used,
+	grade_point_used AS grade_for_core,
 	count(student_id) AS count,
 	round(count(student_id)/(
 		SELECT count(g.student_id)
 		FROM grades AS g 
-		WHERE course_subject NOT IN ('English', 'Science', 'Mathematics', 'Social Studies')
+		LEFT JOIN courses AS c USING(course_id, course_subject, course_title)
+		WHERE core_req=1
 	)*100, 2) AS perc
-FROM grades
-WHERE course_subject NOT IN ('English', 'Science', 'Mathematics', 'Social Studies')
+FROM grades AS g 
+LEFT JOIN courses AS c USING(course_id, course_subject, course_title)
+WHERE core_req=1
 GROUP BY 
 	grade_point_used
 ORDER BY grade_point_used DESC;
 
--- All department average grades
+-- Count of grades received (A=4, B=3, etc.) in non-core classes
+
+SELECT
+	grade_point_used AS grade_non_core,
+	count(student_id) AS count,
+	round(count(student_id)/(
+		-- Subquery to find percentage of students receiving that grade (only for core classes)
+		SELECT count(g.student_id)
+		FROM grades AS g 
+		LEFT JOIN courses AS c USING(course_id, course_subject, course_title)
+		WHERE core_req != 1
+	)*100, 2) AS perc
+FROM grades AS g 
+LEFT JOIN courses AS c USING(course_id, course_subject, course_title)
+WHERE core_req != 1
+GROUP BY 
+	grade_point_used
+ORDER BY grade_point_used DESC;
+
+
+
+-- Average grade (using +/-) by department
+
 SELECT 
-	round(avg(grade_point_dec), 2) AS average,
-	course_subject
+	course_subject,
+	round(avg(grade_point_dec), 2) AS average
 FROM grades
 GROUP BY course_subject
 ORDER BY average DESC;
 
--- Idnetifying students who aren't listed on the GPA table -- possible non-diploma seeking students?
+
+-- Average grade (using +/-) in only core classes by department
 
 SELECT 
-	DISTINCT s.student_id,
-	s.first_name,
-	s.last_name,
-	s.grade_level
-FROM grades AS g
-LEFT JOIN gpa USING(student_id)
-LEFT JOIN students AS s USING(student_id)
-WHERE gpa.student_id IS NULL;
+	course_subject,
+	round(avg(grade_point_dec), 2) AS average
+FROM grades
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
+WHERE 
+	c.core_req=1
+GROUP BY course_subject
+ORDER BY average DESC;
+
+-- Average grade (using +/-) in only core classes by department(but not including ACS in English)
+
+SELECT 
+	course_subject,
+	round(avg(grade_point_dec), 2) AS average
+FROM grades
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
+WHERE 
+	c.core_req=1
+	AND course_title != 'Adv Comm Skills'
+GROUP BY course_subject
+ORDER BY average DESC;
+
+-- Average grade by course, identifying the 15 hardest courses (only including courses with at least 20 students)
+SELECT 
+	course_title,
+	round(avg(grade_point_dec), 2) AS average,
+	count(course_title) AS count
+FROM grades
+GROUP BY course_title
+HAVING count(course_title)>=20
+ORDER BY average ASC
+LIMIT 15;
 
 
 
--- English department analytics (looking only at core English classes)
+
+
+
+
+/* English department analytics 
+Unless otherwise stated, queries are considering these conditions:
+	- Querying only core English classes (not electives/ACS)
+	- Using a +/- grade scale (e.g., a B+ is a 3.3, not a 3) -- more specific, but not used to calculate GPA */
+
+
+
+
+-- English department average grade by course (including electives/ACS)
+SELECT 
+	course_title,
+	round(avg(grade_point_dec), 2) AS average
+FROM grades
+WHERE 
+	course_subject='English'
+GROUP BY course_title
+ORDER BY average DESC;
 
 -- English department average grade by teacher
 
 SELECT 
-	round(avg(grade_point_dec), 2) AS average,
-	teacher_id
-FROM grades
-WHERE course_subject='English'
-GROUP BY teacher_id
+	teacher_name,
+	round(avg(grade_point_dec), 2) AS average
+FROM grades AS g
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
+LEFT JOIN teachers USING(teacher_id)
+WHERE 
+	course_subject='English' 
+	AND c.core_req=1
+	AND course_title !='Adv Comm Skills'
+GROUP BY teacher_name
 ORDER BY average DESC;
 
--- English department average grade (using +/-) by teacher (not including honors/AP)
+-- English department average grade for non-honors/AP English classes by teacher
 
 SELECT 
-	round(avg(grade_point_dec), 2) AS average,
-	teacher_id
-FROM grades
-WHERE course_subject='English'
-	AND course_title NOT LIKE '%Honors%'
-	AND course_title NOT LIKE '%AP%'
-GROUP BY teacher_id
+	teacher_name,
+	round(avg(grade_point_dec), 2) AS average
+FROM grades AS g
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
+LEFT JOIN teachers USING(teacher_id)
+WHERE 
+	course_subject='English'
+	AND c.core_req=1
+	AND course_title !='Adv Comm Skills'
+	AND c.weighted=0
+GROUP BY teacher_name
 ORDER BY average DESC;
 
--- English department average grade (no +/-; used for GPA) by teacher (not including honors/AP)
+-- English department average grade (no +/-; grades used for GPA) for non-honors/AP English classes by teacher
 SELECT 
-	round(avg(grade_point_used), 2) AS average,
-	teacher_id
-FROM grades
-WHERE course_subject='English'
-	AND course_title NOT LIKE '%Honors%'
-	AND course_title NOT LIKE '%AP%'
-GROUP BY teacher_id
+	teacher_name,
+	round(avg(grade_point_used), 2) AS average
+FROM grades AS g
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
+LEFT JOIN teachers USING(teacher_id)
+WHERE 
+	course_subject='English'
+	AND c.core_req=1
+	AND course_title !='Adv Comm Skills'
+	AND c.weighted=0
+GROUP BY teacher_name
 ORDER BY average DESC;
 
--- English department honors average grade by teacher
+-- English department average grade for honors/AP classes by teacher
 SELECT 
-	round(avg(grade_point_dec), 2) AS average,
-	teacher_id
-FROM grades
-WHERE course_subject='English'
-	AND (course_title LIKE '%Honors%'
-	OR course_title LIKE '%AP%')
-GROUP BY teacher_id
+	teacher_name,
+	round(avg(grade_point_dec), 2) AS average
+FROM grades AS g
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
+LEFT JOIN teachers USING(teacher_id)
+WHERE 
+	course_subject='English'
+	AND c.weighted=1
+GROUP BY teacher_name
 ORDER BY average DESC;
 
 -- English department average grade by course and teacher
 
 SELECT 
-	round(avg(grade_point_dec), 2) AS average,
+	teacher_name,
 	course_title,
-	teacher_id
-FROM grades
-WHERE course_subject='English'
-GROUP BY course_title, teacher_id
+	round(avg(grade_point_dec), 2) AS average
+FROM grades AS g
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
+LEFT JOIN teachers USING(teacher_id)
+WHERE 
+	course_subject='English'
+	AND c.core_req=1
+	AND course_title !='Adv Comm Skills'
+GROUP BY course_title, teacher_name
 ORDER BY average DESC;
 
--- English department average grade by course
+-- English department average grade by course (including electives/ACS) and teacher
+
 SELECT 
-	round(avg(grade_point_dec), 2) AS average,
-	course_title
-FROM grades
+	teacher_name,
+	course_title,
+	round(avg(grade_point_dec), 2) AS average
+FROM grades AS g
+LEFT JOIN courses AS c USING(course_id, course_title, course_subject)
 LEFT JOIN teachers USING(teacher_id)
-WHERE course_subject='English'
-GROUP BY course_title
+WHERE 
+	course_subject='English'
+GROUP BY course_title, teacher_name
 ORDER BY average DESC;
+
 
 
 
@@ -177,13 +274,17 @@ CREATE TABLE all_student_data AS (
 	  	gpa.credits_attempted,
 	  	gpa.credits_completed,
 	  	s.gender,
+	  	s.gender_male,
+	  	s.gender_female,
+	  	s.gender_nonbinary,
 	  	s.grade_level,
 	  	
 	  	-- Demographic fields; default to 0 for Boolean logic (if unlisted, not part of program)
 	  	COALESCE(e.ell, 0) AS ell,
 	    COALESCE(s504.sec_504, 0) AS sec_504,
 	    COALESCE(sped.sped, 0) AS sped,
-	    COALESCE(tag.tag, 0) AS tag
+	    COALESCE(tag.tag, 0) AS tag,
+	    COALESCE(tr.transfer, 0) AS transfer
 	FROM grades AS g
 	LEFT JOIN absences AS a USING(student_id)
 	LEFT JOIN tardies as tar USING(student_id)
@@ -196,16 +297,132 @@ CREATE TABLE all_student_data AS (
 	LEFT JOIN transfer as tr USING(student_id)
 );
 
+-- Adding columns for percentages of absences, tardies, and credit completion; adding pass/fail and A-C/D-F
+
 ALTER TABLE all_student_data
 ADD COLUMN absence_perc DECIMAL(3,0) 
-	GENERATED ALWAYS AS (absences/20*100) STORED,
+	GENERATED ALWAYS AS ((absences/20)*100) STORED,
 ADD COLUMN tardy_perc DECIMAL (3,0)
-	GENERATED ALWAYS AS (tardies/20*100) STORED,
+	GENERATED ALWAYS AS ((tardies/20)*100) STORED,
 ADD COLUMN ss_abs_perc DECIMAL(4,1)
-	GENERATED ALWAYS AS (ss_absences/18*100) STORED,
+	GENERATED ALWAYS AS ((ss_absences/18)*100) STORED,
 ADD COLUMN credit_perc DECIMAL(4,1)
-	GENERATED ALWAYS AS (credits_completed/credits_attempted*100) STORED;
+	GENERATED ALWAYS AS ((credits_completed/credits_attempted)*100) STORED,
+ADD COLUMN pass_or_fail INTEGER 
+	GENERATED ALWAYS AS 
+	(CASE
+		WHEN grade_point_used>=1 THEN 1
+		ELSE 0
+	END) STORED,
+ADD COLUMN c_or_higher INTEGER 
+	GENERATED ALWAYS AS 
+	(CASE
+		WHEN grade_point_used>=2 THEN 1
+		ELSE 0
+	END) STORED,
+ADD COLUMN absence_rate VARCHAR(10) 
+	GENERATED ALWAYS AS 
+	(CASE
+		WHEN absence_perc BETWEEN 0 AND 9.9 THEN 'low'
+		WHEN absence_perc BETWEEN 10 AND 19.9 THEN 'medium'
+		WHEN absence_perc BETWEEN 20 AND 39.9 THEN 'high'
+		WHEN absence_perc >=40 THEN 'very high'
+		ELSE 'error'
+	END) STORED;
 
+
+-- Avgerage grade/pass percent by absence percentage
+SELECT 
+	absence_perc,
+	round(avg(grade_point_dec), 2) AS avg_grade,
+	round(avg(pass_or_fail), 2) AS pass_perc,
+	count(absence_perc) AS count
+FROM all_student_data
+GROUP BY absences
+ORDER BY absences ASC;
+
+-- Grades/pass percentage as grouped by absence rates
+SELECT 
+	absence_rate,
+	round(avg(absence_perc), 2) AS avg_absence_perc,
+	round(avg(grade_point_dec), 2) AS avg_grade,
+	round(avg(pass_or_fail), 2) AS pass_perc,
+	count(absence_rate) AS count
+FROM all_student_data
+GROUP BY absence_rate
+ORDER BY avg_absence_perc ASC;
+
+
+-- Grades/pass percentage as grouped by absence rates for core classes
+SELECT 
+	absence_rate,
+	round(avg(absence_perc), 2) AS avg_absence_perc,
+	round(avg(absences), 2) AS avg_absences,
+	round(avg(grade_point_dec), 2) AS avg_grade,
+	round(avg(pass_or_fail), 2) AS pass_perc,
+	round(avg(c_or_higher), 2) AS c_and_up_perc,
+		count(absence_rate) AS count
+FROM all_student_data AS a 
+LEFT JOIN courses AS c USING(course_title)
+WHERE core_req=1
+GROUP BY absence_rate
+ORDER BY avg_absence_perc ASC;
+
+-- Absences as grouped by support status
+
+
+
+
+
+/*Findings
+	- Attendance is the single largest factor in a students' grade, both individually and when controlling for other variables
+	- While ELL students do have noticeably lower grades/pass rates than their non-ELL peers, the difference is not statistically significant (to a p>.01 level) when controlling for attendance and SPED status
+	- After controlling for attendance and other demographic factors, there is no statistically significant different between transfer status or genders. Depending on the test, there is often no statistically significant different between ELL status, but if I use a higher p value (allow for more possibility of error), it has a 
+
+*/
+
+-- Miscellaneous
+
+-- Identifying students who aren't listed on the GPA table -- possible non-diploma seeking students?
+-- Identify absence rates by different groups -- who are we struggling with attendance most?
+
+SELECT 
+	DISTINCT s.student_id,
+	s.first_name,
+	s.last_name,
+	s.grade_level
+FROM grades AS g
+LEFT JOIN gpa USING(student_id)
+LEFT JOIN students AS s USING(student_id)
+WHERE gpa.student_id IS NULL;
+
+CREATE TABLE all_with_core AS (
+	SELECT *
+	FROM all_student_data
+	LEFT JOIN courses USING(course_title, course_subject)
+);
 
 -- Future ideas: count AP classes taken per student
+
+-- Number of students taking x AP/dual-credit classes (with avg GPAs)
+
+SELECT
+	count(student_id) AS total_students,
+	num_of_APs,
+	round(avg(gpa), 2) AS avg_gpa
+FROM (
+	SELECT
+		g.student_id,
+		sum(c.ap_or_dual_credit) AS num_of_APs
+	FROM courses AS c 
+	LEFT JOIN grades AS g 
+		USING(course_id)
+	GROUP BY g.student_id
+) AS ap
+LEFT JOIN gpa 
+USING(student_id)
+GROUP BY num_of_APs
+ORDER BY num_of_APs DESC;
+
+
 
