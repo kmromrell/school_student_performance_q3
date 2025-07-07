@@ -111,6 +111,16 @@ HAVING student_count>=20
 ORDER BY avg_grade ASC
 LIMIT 15;
 
+-- Identifying students who aren't listed on the GPA table -- possible non-diploma seeking students?
+SELECT 
+	DISTINCT student_id,
+	first_name,
+	last_name,
+	grade_level
+FROM grades
+LEFT JOIN gpa USING(student_id)
+LEFT JOIN students USING(student_id)
+WHERE gpa.student_id IS NULL;
 
 
 
@@ -212,6 +222,13 @@ ADD COLUMN absence_rate VARCHAR(10)
 		WHEN absence_perc >=40 THEN 'very high'
 		ELSE 'error'
 	END) STORED;
+
+-- Creating table that includes data indicating core/non-core for R analysis
+CREATE TABLE all_with_core AS (
+	SELECT *
+	FROM all_student_data
+	LEFT JOIN courses USING(course_title, course_subject)
+);
 
 
 
@@ -434,21 +451,3 @@ LEFT JOIN courses USING(course_title, course_subject)
 WHERE core_req=1
 GROUP BY course_subject WITH ROLLUP
 ORDER BY avg_grade;
-
-
--- Identifying students who aren't listed on the GPA table -- possible non-diploma seeking students?
-SELECT 
-	DISTINCT s.student_id,
-	s.first_name,
-	s.last_name,
-	s.grade_level
-FROM grades AS g
-LEFT JOIN gpa USING(student_id)
-LEFT JOIN students AS s USING(student_id)
-WHERE gpa.student_id IS NULL;
-
-CREATE TABLE all_with_core AS (
-	SELECT *
-	FROM all_student_data
-	LEFT JOIN courses USING(course_title, course_subject)
-);
