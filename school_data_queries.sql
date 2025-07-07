@@ -289,6 +289,26 @@ WHERE core_req=0
 GROUP BY absence_rate WITH ROLLUP
 ORDER BY perc_of_students DESC; 
 
+-- GPA as correlated with support seminar absences
+SELECT
+	ss_abs_rate,
+	count(student_id) AS count,
+	round(avg(gpa), 2) AS avg_gpa
+FROM (
+	SELECT 
+		gpa,
+		student_id,
+		CASE 
+			WHEN support_seminar<=1 THEN 'low'
+			WHEN support_seminar<=3 THEN 'middle'
+			WHEN support_seminar<=7 THEN 'high'
+			ELSE 'very high'
+	END AS ss_abs_rate
+	FROM gpa
+	LEFT JOIN absences USING(student_id)
+) AS ss_abs_cat
+GROUP BY ss_abs_rate
+ORDER BY count DESC;
 
 
 
