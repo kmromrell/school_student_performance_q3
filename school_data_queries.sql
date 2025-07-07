@@ -228,6 +228,7 @@ FROM all_student_data
 GROUP BY absences
 ORDER BY absences ASC;
 
+-- Grades/pass percentage as grouped by absence rates for all classes (with ROLLUP)
 SELECT 
 	absence_rate,
 	round(avg(absences), 2) as avg_classes_missed,
@@ -312,12 +313,8 @@ ORDER BY count DESC;
 
 
 
-/*Findings
-	- Attendance is the single largest factor in a students' grade, both individually and when controlling for other variables
-	- While ELL students do have noticeably lower grades/pass rates than their non-ELL peers, the difference is not statistically significant (to a p>.01 level) when controlling for attendance and SPED status
-	- After controlling for attendance and other demographic factors, there is no statistically significant different between transfer status or genders. Depending on the test, there is often no statistically significant different between ELL status, but if I use a higher p value (allow for more possibility of error), it has a 
+-- Absences/grades as grouped by demographic factors (for table "Summary of Demographic Factors")
 
-*/
 -- SPED
 SELECT
 	COUNT(sped) AS iep_num,
@@ -330,7 +327,6 @@ SELECT
 FROM all_student_data
 GROUP BY sped;
 
--- Miscellaneous
 -- Section 504
 SELECT
 	COUNT(sec_504) AS sec_504_num,
@@ -343,8 +339,6 @@ SELECT
 FROM all_student_data
 GROUP BY sec_504;
 
--- Identifying students who aren't listed on the GPA table -- possible non-diploma seeking students?
--- Identify absence rates by different groups -- who are we struggling with attendance most?
 -- ELL
 SELECT
 	COUNT(ell) AS ell_num,
@@ -440,6 +434,9 @@ LEFT JOIN courses USING(course_title, course_subject)
 WHERE core_req=1
 GROUP BY course_subject WITH ROLLUP
 ORDER BY avg_grade;
+
+
+-- Identifying students who aren't listed on the GPA table -- possible non-diploma seeking students?
 SELECT 
 	DISTINCT s.student_id,
 	s.first_name,
@@ -455,32 +452,3 @@ CREATE TABLE all_with_core AS (
 	FROM all_student_data
 	LEFT JOIN courses USING(course_title, course_subject)
 );
-
--- Future ideas: count AP classes taken per student
-
--- Number of students taking each number of AP/dual-credit classes (with avg GPAs)
-
-SELECT
-	count(student_id) AS total_students,
-	num_of_APs,
-	round(avg(gpa), 2) AS avg_gpa
-FROM (
-	SELECT
-		g.student_id,
-		sum(c.ap_or_dual_credit) AS num_of_APs
-	FROM courses AS c 
-	LEFT JOIN grades AS g 
-		USING(course_id)
-	GROUP BY g.student_id
-) AS ap
-LEFT JOIN gpa 
-USING(student_id)
-GROUP BY num_of_APs
-ORDER BY num_of_APs DESC;
-
--- Identifying department grades partitioned by type of class
-
-
-
-
-
