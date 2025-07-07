@@ -124,11 +124,13 @@ LIMIT 15;
 CREATE TABLE all_student_data AS ( 
 	SELECT
 		g.student_id,
+		g.teacher_id,
 		g.grade,
 		g.grade_point_dec,
 		g.grade_point_used,
 		g.course_subject,
 		g.course_title,
+		g.period,
 		
 		-- Retrieve absences by period; default to 0 to account for students with no absences
 		COALESCE(CASE g.period
