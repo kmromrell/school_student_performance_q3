@@ -228,35 +228,66 @@ FROM all_student_data
 GROUP BY absences
 ORDER BY absences ASC;
 
--- Grades/pass percentage as grouped by absence rates
 SELECT 
 	absence_rate,
+	round(avg(absences), 2) as avg_classes_missed,
+	count(absence_rate) AS count,
+	round(count(absence_rate)/(
+		-- subquery to tally total number of rows to calculate percentage
+		SELECT count(absence_rate) FROM all_student_data
+	)*100, 1) AS perc_of_students,
 	round(avg(absence_perc), 2) AS avg_absence_perc,
 	round(avg(grade_point_dec), 2) AS avg_grade,
-	round(avg(pass_or_fail), 2) AS pass_perc,
-	count(absence_rate) AS count
+	round(avg(pass_or_fail)* 100, 1) AS pass_perc
 FROM all_student_data
-GROUP BY absence_rate
-ORDER BY avg_absence_perc ASC;
+GROUP BY absence_rate WITH ROLLUP
+ORDER BY perc_of_students DESC; 
 
 
--- Grades/pass percentage as grouped by absence rates for core classes
+-- Grades/pass percentage as grouped by absence rates for core classes (with ROLLUP)
 SELECT 
 	absence_rate,
+	round(avg(absences), 2) as avg_classes_missed,
+	count(absence_rate) AS count,
+	round(count(absence_rate)/(
+		-- subquery to tally total number of rows in core classes to calculate percentage
+		SELECT count(absence_rate) 
+		FROM all_student_data 
+		LEFT JOIN courses USING(course_title) 
+		WHERE core_req=1
+	)*100, 1) AS perc_of_students,
 	round(avg(absence_perc), 2) AS avg_absence_perc,
-	round(avg(absences), 2) AS avg_absences,
 	round(avg(grade_point_dec), 2) AS avg_grade,
-	round(avg(pass_or_fail), 2) AS pass_perc,
-	round(avg(c_or_higher), 2) AS c_and_up_perc,
-		count(absence_rate) AS count
-FROM all_student_data AS a 
-LEFT JOIN courses AS c USING(course_title)
+	round(avg(pass_or_fail)* 100, 1) AS pass_perc,
+	round(avg(c_or_higher)* 100, 1) AS c_or_higher_perc
+FROM all_student_data
+LEFT JOIN courses USING(course_title)
 WHERE core_req=1
-GROUP BY absence_rate
-ORDER BY avg_absence_perc ASC;
+GROUP BY absence_rate WITH ROLLUP
+ORDER BY perc_of_students DESC; 
 
--- Absences as grouped by support status
 
+-- Grades/pass percentage as grouped by absence rates for non-core classes (with ROLLUP)
+SELECT 
+	absence_rate,
+	round(avg(absences), 2) as avg_classes_missed,
+	count(absence_rate) AS count,
+	round(count(absence_rate)/(
+		-- subquery to tally total number of rows in core classes to calculate percentage
+		SELECT count(absence_rate) 
+		FROM all_student_data 
+		LEFT JOIN courses USING(course_title) 
+		WHERE core_req=0
+	)*100, 1) AS perc_of_students,
+	round(avg(absence_perc), 2) AS avg_absence_perc,
+	round(avg(grade_point_dec), 2) AS avg_grade,
+	round(avg(pass_or_fail)* 100, 1) AS pass_perc,
+	round(avg(c_or_higher)* 100, 1) AS c_or_higher_perc
+FROM all_student_data
+LEFT JOIN courses USING(course_title)
+WHERE core_req=0
+GROUP BY absence_rate WITH ROLLUP
+ORDER BY perc_of_students DESC; 
 
 
 
