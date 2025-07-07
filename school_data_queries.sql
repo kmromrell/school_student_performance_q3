@@ -1,4 +1,7 @@
--- Looking at grades overall to create familiarity
+-- School Quarter 3 Analysis
+
+
+-- Explore grades overall to create familiarity
 
 
 -- Count of grades received (A=4, B=3, etc.)
@@ -93,19 +96,18 @@ WHERE
 GROUP BY course_subject
 ORDER BY average DESC;
 
--- Average grade by course, identifying the 15 hardest courses (only including courses with at least 20 students)
+-- Average grade by course, identifying the 15 hardest courses (only including courses with at least 20 students) -- included in tables at end of report
 SELECT 
 	course_title,
- 	COUNT(course_title) AS count,
-	ROUND(COUNT(course_title) / 8350.0, 2) AS perc_of_students,
+ 	COUNT(course_title) AS student_count,
 	ROUND(AVG(absence_perc), 2) AS avg_absence,
 	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
 	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
 	ROUND(AVG(pass_or_fail), 2) AS pass_rate,
 	ROUND(AVG(c_or_higher), 2) AS c_or_higher_rate
 FROM all_student_data
-GROUP BY course_title
-HAVING count(course_title)>=20
+GROUP BY course_title 
+HAVING student_count>=20
 ORDER BY avg_grade ASC
 LIMIT 15;
 
@@ -210,6 +212,11 @@ ADD COLUMN absence_rate VARCHAR(10)
 		WHEN absence_perc >=40 THEN 'very high'
 		ELSE 'error'
 	END) STORED;
+
+
+
+
+-- Using newly generated table for further exploration prior to R analysis
 
 -- Avgerage grade/pass percent by absence percentage
 SELECT 
