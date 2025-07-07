@@ -7,9 +7,9 @@
 -- Count of grades received (A=4, B=3, etc.)
 SELECT
 	grade_point_used,
-	count(student_id) AS count,
-	round(count(student_id)/(
-		SELECT count(g.student_id)
+	count(*) AS count,
+	round(count(*)/(
+		SELECT count(*)
 		FROM grades AS g 
 	)*100, 2) AS perc
 FROM grades
@@ -20,9 +20,9 @@ ORDER BY grade_point_used DESC;
 -- Count of grades received using +/- grades (e.g., B+ is 3.3, not 3)
 SELECT
 	grade_point_dec,
-	count(student_id) AS count,
-	round(count(student_id)/(
-		SELECT count(g.student_id)
+	count(*) AS count,
+	round(count(*)/(
+		SELECT count(*)
 		FROM grades AS g 
 	)*100, 2) AS perc
 FROM grades
@@ -33,15 +33,15 @@ ORDER BY grade_point_dec DESC;
 -- Count of grades received (A=4, B=3, etc.) in core classes
 SELECT
 	grade_point_used AS grade_for_core,
-	count(student_id) AS count,
-	round(count(student_id)/(
-		SELECT count(g.student_id)
+	count(*) AS count,
+	round(count(*)/(
+		SELECT count(*)
 		FROM grades AS g 
-		LEFT JOIN courses AS c USING(course_id, course_subject, course_title)
+		JOIN courses AS c USING(course_id, course_subject, course_title)
 		WHERE core_req=1
 	)*100, 2) AS perc
 FROM grades AS g 
-LEFT JOIN courses AS c USING(course_id, course_subject, course_title)
+JOIN courses AS c USING(course_id, course_subject, course_title)
 WHERE core_req=1
 GROUP BY 
 	grade_point_used
@@ -50,10 +50,10 @@ ORDER BY grade_point_used DESC;
 -- Count of grades received (A=4, B=3, etc.) in non-core classes
 SELECT
 	grade_point_used AS grade_non_core,
-	count(student_id) AS count,
-	round(count(student_id)/(
+	count(*) AS count,
+	round(count(*)/(
 		-- Subquery to find percentage of students receiving that grade (only for core classes)
-		SELECT count(g.student_id)
+		SELECT count(*)
 		FROM grades AS g 
 		LEFT JOIN courses AS c USING(course_id, course_subject, course_title)
 		WHERE core_req != 1
@@ -99,7 +99,7 @@ ORDER BY average DESC;
 -- Average grade by course, identifying the 15 hardest courses (only including courses with at least 20 students) -- included in tables at end of report
 SELECT 
 	course_title,
- 	COUNT(course_title) AS student_count,
+ 	COUNT(*) AS student_count,
 	ROUND(AVG(absence_perc), 2) AS avg_absence,
 	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
 	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
@@ -223,19 +223,19 @@ SELECT
 	absence_perc,
 	round(avg(grade_point_dec), 2) AS avg_grade,
 	round(avg(pass_or_fail), 2) AS pass_perc,
-	count(absence_perc) AS count
+	count(*) AS count
 FROM all_student_data
-GROUP BY absences
-ORDER BY absences ASC;
+GROUP BY absence_perc
+ORDER BY absence_perc ASC;
 
 -- Grades/pass percentage as grouped by absence rates for all classes (with ROLLUP)
 SELECT 
 	absence_rate,
 	round(avg(absences), 2) as avg_classes_missed,
-	count(absence_rate) AS count,
-	round(count(absence_rate)/(
+	count(*) AS count,
+	round(count(*)/(
 		-- subquery to tally total number of rows to calculate percentage
-		SELECT count(absence_rate) FROM all_student_data
+		SELECT count(*) FROM all_student_data
 	)*100, 1) AS perc_of_students,
 	round(avg(absence_perc), 2) AS avg_absence_perc,
 	round(avg(grade_point_dec), 2) AS avg_grade,
@@ -249,10 +249,10 @@ ORDER BY perc_of_students DESC;
 SELECT 
 	absence_rate,
 	round(avg(absences), 2) as avg_classes_missed,
-	count(absence_rate) AS count,
-	round(count(absence_rate)/(
+	count(*) AS count,
+	round(count(*)/(
 		-- subquery to tally total number of rows in core classes to calculate percentage
-		SELECT count(absence_rate) 
+		SELECT count(*) 
 		FROM all_student_data 
 		LEFT JOIN courses USING(course_title) 
 		WHERE core_req=1
@@ -272,10 +272,10 @@ ORDER BY perc_of_students DESC;
 SELECT 
 	absence_rate,
 	round(avg(absences), 2) as avg_classes_missed,
-	count(absence_rate) AS count,
-	round(count(absence_rate)/(
+	count(*) AS count,
+	round(count(*)/(
 		-- subquery to tally total number of rows in core classes to calculate percentage
-		SELECT count(absence_rate) 
+		SELECT count(*) 
 		FROM all_student_data 
 		LEFT JOIN courses USING(course_title) 
 		WHERE core_req=0
@@ -293,7 +293,7 @@ ORDER BY perc_of_students DESC;
 -- GPA as correlated with support seminar absences
 SELECT
 	ss_abs_rate,
-	count(student_id) AS count,
+	count(*) AS count,
 	round(avg(gpa), 2) AS avg_gpa
 FROM (
 	SELECT 
@@ -317,8 +317,8 @@ ORDER BY count DESC;
 
 -- SPED
 SELECT
-	COUNT(sped) AS iep_num,
-	ROUND(COUNT(sped) / 8350.0, 2) AS perc_of_students,
+	COUNT(*) AS iep_num,
+	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
 	ROUND(AVG(absence_perc), 2) AS avg_absence,
 	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
 	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
@@ -329,8 +329,8 @@ GROUP BY sped;
 
 -- Section 504
 SELECT
-	COUNT(sec_504) AS sec_504_num,
-	ROUND(COUNT(sec_504) / 8350.0, 2) AS perc_of_students,
+	COUNT(*) AS sec_504_num,
+	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
 	ROUND(AVG(absence_perc), 2) AS avg_absence,
 	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
 	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
@@ -341,8 +341,8 @@ GROUP BY sec_504;
 
 -- ELL
 SELECT
-	COUNT(ell) AS ell_num,
-	ROUND(COUNT(ell) / 8350.0, 2) AS perc_of_students,
+	COUNT(*) AS ell_num,
+	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
 	ROUND(AVG(absence_perc), 2) AS avg_absence,
 	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
 	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
@@ -353,8 +353,8 @@ GROUP BY ell;
 
 -- TAG
 SELECT
-	COUNT(tag) AS tag_num,
-	ROUND(COUNT(tag) / 8350.0, 2) AS perc_of_students,
+	COUNT(*) AS tag_num,
+	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
 	ROUND(AVG(absence_perc), 2) AS avg_absence,
 	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
 	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
@@ -365,8 +365,8 @@ GROUP BY tag;
 
 -- Transfer
 SELECT
-	COUNT(transfer) AS transfer_num,
-	ROUND(COUNT(transfer) / 8350.0, 2) AS perc_of_students,
+	COUNT(*) AS transfer_num,
+	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
 	ROUND(AVG(absence_perc), 2) AS avg_absence,
 	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
 	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
@@ -378,8 +378,8 @@ GROUP BY transfer;
 -- Gender
 SELECT
 	gender,
-	COUNT(gender) AS nb_num,
-	ROUND(COUNT(gender_nonbinary) / 8350.0, 2) AS perc_of_students,
+	COUNT(*) AS nb_num,
+	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
 	ROUND(AVG(absence_perc), 2) AS avg_absence,
 	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
 	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
@@ -395,8 +395,8 @@ GROUP BY gender;
 -- Grade Level
 SELECT
 	grade_level,
-	COUNT(grade_level),
-	ROUND(COUNT(grade_level) / 8350.0, 2) AS perc_of_students,
+	COUNT(*) AS count,
+	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
 	ROUND(AVG(absence_perc), 2) AS avg_absence,
 	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
 	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
@@ -408,8 +408,8 @@ GROUP BY grade_level;
 -- Department for all classes (with ROLLUP)
 SELECT
 	course_subject,
-	COUNT(grade_level) AS count,
-	ROUND(COUNT(grade_level) / 8350.0, 2) AS perc_of_students,
+	COUNT(*) AS count,
+	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
 	ROUND(AVG(absence_perc), 2) AS avg_absence,
 	ROUND(AVG(tardy_perc), 2) AS avg_tardies,
 	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
@@ -422,8 +422,8 @@ GROUP BY course_subject WITH ROLLUP;
 -- Department for core classes (with ROLLUP)
 SELECT
 	course_subject,
-	COUNT(grade_level) AS count,
-	ROUND(COUNT(grade_level) / 4882, 2) AS perc_of_students,
+	COUNT(*) AS count,
+	ROUND(COUNT(*) / 4882, 2) AS perc_of_students,
 	ROUND(AVG(absence_perc), 2) AS avg_absence,
 	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
 	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
