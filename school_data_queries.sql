@@ -394,6 +394,52 @@ SELECT
 FROM all_student_data
 GROUP BY gender;
 
+
+
+-- Absences/grades as grouped by school goupings (for tables at the end of the report)
+
+-- Grade Level
+SELECT
+	grade_level,
+	COUNT(grade_level),
+	ROUND(COUNT(grade_level) / 8350.0, 2) AS perc_of_students,
+	ROUND(AVG(absence_perc), 2) AS avg_absence,
+	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
+	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
+	ROUND(AVG(pass_or_fail), 2) AS pass_rate,
+	ROUND(AVG(c_or_higher), 2) AS c_or_higher_rate
+FROM all_student_data
+GROUP BY grade_level;
+
+-- Department for all classes (with ROLLUP)
+SELECT
+	course_subject,
+	COUNT(grade_level) AS count,
+	ROUND(COUNT(grade_level) / 8350.0, 2) AS perc_of_students,
+	ROUND(AVG(absence_perc), 2) AS avg_absence,
+	ROUND(AVG(tardy_perc), 2) AS avg_tardies,
+	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
+	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
+	ROUND(AVG(pass_or_fail), 2) AS pass_rate,
+	ROUND(AVG(c_or_higher), 2) AS c_or_higher_rate
+FROM all_student_data 
+GROUP BY course_subject WITH ROLLUP;
+
+-- Department for core classes (with ROLLUP)
+SELECT
+	course_subject,
+	COUNT(grade_level) AS count,
+	ROUND(COUNT(grade_level) / 4882, 2) AS perc_of_students,
+	ROUND(AVG(absence_perc), 2) AS avg_absence,
+	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
+	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
+	ROUND(AVG(pass_or_fail), 2) AS pass_rate,
+	ROUND(AVG(c_or_higher), 2) AS c_or_higher_rate
+FROM all_student_data
+LEFT JOIN courses USING(course_title, course_subject)
+WHERE core_req=1
+GROUP BY course_subject WITH ROLLUP
+ORDER BY avg_grade;
 SELECT 
 	DISTINCT s.student_id,
 	s.first_name,
