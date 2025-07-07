@@ -2,7 +2,6 @@
 
 
 -- Count of grades received (A=4, B=3, etc.)
-
 SELECT
 	grade_point_used,
 	count(student_id) AS count,
@@ -16,7 +15,6 @@ GROUP BY
 ORDER BY grade_point_used DESC;
 
 -- Count of grades received using +/- grades (e.g., B+ is 3.3, not 3)
-
 SELECT
 	grade_point_dec,
 	count(student_id) AS count,
@@ -30,7 +28,6 @@ GROUP BY
 ORDER BY grade_point_dec DESC;
 
 -- Count of grades received (A=4, B=3, etc.) in core classes
-
 SELECT
 	grade_point_used AS grade_for_core,
 	count(student_id) AS count,
@@ -48,7 +45,6 @@ GROUP BY
 ORDER BY grade_point_used DESC;
 
 -- Count of grades received (A=4, B=3, etc.) in non-core classes
-
 SELECT
 	grade_point_used AS grade_non_core,
 	count(student_id) AS count,
@@ -66,10 +62,7 @@ GROUP BY
 	grade_point_used
 ORDER BY grade_point_used DESC;
 
-
-
 -- Average grade (using +/-) by department
-
 SELECT 
 	course_subject,
 	round(avg(grade_point_dec), 2) AS average
@@ -77,9 +70,7 @@ FROM grades
 GROUP BY course_subject
 ORDER BY average DESC;
 
-
 -- Average grade (using +/-) in only core classes by department
-
 SELECT 
 	course_subject,
 	round(avg(grade_point_dec), 2) AS average
@@ -91,7 +82,6 @@ GROUP BY course_subject
 ORDER BY average DESC;
 
 -- Average grade (using +/-) in only core classes by department(but not including ACS in English)
-
 SELECT 
 	course_subject,
 	round(avg(grade_point_dec), 2) AS average
@@ -118,6 +108,10 @@ GROUP BY course_title
 HAVING count(course_title)>=20
 ORDER BY avg_grade ASC
 LIMIT 15;
+
+
+
+
 
 -- Create table with all relevant information for R analysis
 
@@ -186,7 +180,6 @@ CREATE TABLE all_student_data AS (
 );
 
 -- Adding columns for percentages of absences, tardies, and credit completion; adding pass/fail and A-C/D-F
-
 ALTER TABLE all_student_data
 ADD COLUMN absence_perc DECIMAL(3,0) 
 	GENERATED ALWAYS AS ((absences/20)*100) STORED,
@@ -217,7 +210,6 @@ ADD COLUMN absence_rate VARCHAR(10)
 		WHEN absence_perc >=40 THEN 'very high'
 		ELSE 'error'
 	END) STORED;
-
 
 -- Avgerage grade/pass percent by absence percentage
 SELECT 
@@ -292,7 +284,7 @@ CREATE TABLE all_with_core AS (
 
 -- Future ideas: count AP classes taken per student
 
--- Number of students taking x AP/dual-credit classes (with avg GPAs)
+-- Number of students taking each number of AP/dual-credit classes (with avg GPAs)
 
 SELECT
 	count(student_id) AS total_students,
@@ -311,6 +303,10 @@ LEFT JOIN gpa
 USING(student_id)
 GROUP BY num_of_APs
 ORDER BY num_of_APs DESC;
+
+-- Identifying department grades partitioned by type of class
+
+
 
 
 
