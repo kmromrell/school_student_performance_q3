@@ -235,7 +235,7 @@ CREATE TABLE all_with_core AS (
 
 -- Using newly generated table for further exploration prior to R analysis
 
--- Avgerage grade/pass percent by absence percentage
+-- Average grade/pass percent by absence percentage
 SELECT 
 	absence_perc,
 	round(avg(grade_point_dec), 2) AS avg_grade,
@@ -291,7 +291,7 @@ SELECT
 	round(avg(absences), 2) as avg_classes_missed,
 	count(*) AS count,
 	round(count(*)/(
-		-- subquery to tally total number of rows in core classes to calculate percentage
+		-- subquery to tally total number of rows in non-core classes to calculate percentage
 		SELECT count(*) 
 		FROM all_student_data 
 		LEFT JOIN courses USING(course_title) 
@@ -440,7 +440,13 @@ GROUP BY course_subject WITH ROLLUP;
 SELECT
 	course_subject,
 	COUNT(*) AS count,
-	ROUND(COUNT(*) / 4882, 2) AS perc_of_students,
+	ROUND(COUNT(*)/(
+		-- subquery to tally total number of rows in core classes to calculate percentage
+		SELECT count(*) 
+		FROM all_student_data 
+		LEFT JOIN courses USING(course_title) 
+		WHERE core_req=1
+	), 2) AS perc_of_students,
 	ROUND(AVG(absence_perc), 2) AS avg_absence,
 	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
 	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
