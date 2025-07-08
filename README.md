@@ -6,17 +6,17 @@ A SQL- and R-based correlational/descriptive analysis of schoolwide student perf
 
 ### SQL Basics
 * Essentials: `SELECT`, `FROM`, `WHERE`
-* Grouping: `GROUP BY`, `HAVING`, `WITH ROLLUP`
+* Grouping: `GROUP BY`, `HAVING`
 * Viewing/Aliases: `ORDER BY`, `LIMIT`, `DISTINCT`, `AS`
 * Basic Operators: `=`, `<`, `>`, `<=`, `>=`, `!=`, `<>`
 * Basic Arithmetic: `+`, `-`, `*`, `/`
 
 ### Aggregate Functions
 * Basic Aggregation: `COUNT()`, `AVG()`
-* Aggregation Support: `ROUND()`, `ROLLUP()`
+* Aggregation Support: `ROUND()`, `WITH ROLLUP`
 
 ### Joins & Other Combination Queries
-* Joins: `INNER JOIN`, `LEFT JOIN`, `USING(...)`
+* Joins: `INNER JOIN`, `LEFT JOIN`, `USING()`
 * Subqueries: Used in `SELECT`, `FROM`, and `WHERE` clauses
 
 ### Conditional Expressions
@@ -25,5 +25,5 @@ A SQL- and R-based correlational/descriptive analysis of schoolwide student perf
 
 ### Table Design/Column Generation
 * Table Creation and Alteration: `CREATE TABLE AS`, `ALTER TABLE ADD COLUMN`
-* Generated Columns: `GENERATED ALWAYS AS (...) STORED`
+* Generated Columns: `GENERATED ALWAYS AS () STORED`
 
