@@ -1,7 +1,7 @@
 # school_student_performance_q3
 ## 📚 Student Success Q3 Analysis
 ### Project Overview
-At a school in Oregon, I was tasked with identifying trends and patterns using attendance, demographic, and student success data from Quarter 3 in order to inform more targeted academic interventions and trainings. This correlational/descriptive analysis was conducted using data derived from Synergy, cleaned in Google Sheets, and analyzed in both SQL and R. See anonymized report [here](https://docs.google.com/presentation/d/1Ud1r2N88FRdj8OlvtDZVQp6WRiUPfX5vLzeP5yJZW00/edit?usp=sharing).
+At a school in Oregon, I was tasked with identifying trends and patterns using attendance, demographic, and student success data from Quarter 3 in order to inform more targeted academic interventions and trainings. This correlational/descriptive analysis was conducted using data derived from Synergy, cleaned in Google Sheets, analyzed in both [SQL](https://github.com/kmromrell/school_student_performance_q3/blob/main/school_data_queries.sql) and R ([exploration](https://github.com/kmromrell/school_student_performance_q3/blob/main/student_performance_exploration.R) and [analysis](https://github.com/kmromrell/school_student_performance_q3/blob/main/student_performance_analysis_code.Rmd)), and reported in [Google Slides](https://docs.google.com/presentation/d/1Ud1r2N88FRdj8OlvtDZVQp6WRiUPfX5vLzeP5yJZW00/edit?usp=sharing) (report anonymized for school confidentiality). 
 
 ### Driving Questions:
 * Which student factors are the largest predictors of student success?
@@ -26,7 +26,7 @@ At a school in Oregon, I was tasked with identifying trends and patterns using a
 ### R Functions Used:  
 * **Data Cleaning and Manipulation**: `filter()`, `mutate()`, `select()`, `left_join()`, `arrange()`, `group_by()`, `rename()`, `case_when()`, `if_else()`, `as.factor()`, `as.character()`, `round()`, `is.na()`  
 * **Data Summarization and Aggregation**: `summarize()`, `n()`, `mean()`, `sd()`, `min()`, `max()`, `count()`  
-* **Statistical Modeling and Tests**: `lm()`, `aov()`, `summary()`, `anova()`, `TukeyHSD()`, `coef()`, `confint()`, `broom::tidy()`, `broom::glance()`  
+* **Statistical Modeling and Tests**: `lm()`, `aov()`, `summary()`, `anova()`, `coef()`, `confint()`, `broom::tidy()`, `broom::glance()`  
 * **Relative Importance Analysis**: `relaimpo::calc.relimp()`, `relaimpo::boot.relimp()`, `summary()`
 * **Visualization and Plotting**: `ggplot()`, `aes()`, `geom_point()`, `geom_bar()`, `geom_col()`, `geom_errorbar()`, `geom_boxplot()`, `geom_line()`, `geom_text()`, `facet_wrap()`, `facet_grid()`, `labs()`, `theme()`, `scale_fill_manual()`, `scale_color_manual()`, `coord_flip()`, patchwork operators (`+`, `/`), `ggsave()`  
 * **Miscellaneous / Helper Functions**: `library()`, `print()`, `head()`, `str()`, `%>%`, `glimpse()`, `unique()`, `levels()`, `table()`  
