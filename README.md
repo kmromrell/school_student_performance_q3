@@ -13,15 +13,18 @@ At a school in Oregon, I was tasked with identifying trends and patterns using a
 3. **Data Cleaning in SQL**: Created R-friendly table, merging necessary data from 10 tables and generating new columns to identify absence/trady per period, numeric and ordinal measures of attendance, etc.
 4. **Data Aggregation in SQL**: Summarized grades, attendance, and pass rates by demographics, course types, and departments
 5. **Exploratory/Predictive Analysis in R**: Explored data via ANOVAs and basic regressions, ran multiple linear regressions to identify most predictive model, calculated relative importance of each student factor
-6. **Data Visualization in R**: Created dashboards and faceted plots to illustrate trends across absence levels and student groups
-7. **Report in Google Slides**: Compiled visuals and findings into a  Google Slides report to recommend next steps, demonstrate patterns, and guide staff discussions/interventions
+6. **Table Generation in SQL**: Used stored procedures and other queries to create additional tables for the report
+7. **Data Visualization in R**: Created dashboards and faceted plots to illustrate trends across absence levels and student groups
+8. **Report in Google Slides**: Compiled visuals and findings into a  Google Slides report to recommend next steps, demonstrate patterns, and guide staff discussions/interventions
 
 ### SQL Functions Used: 
 * **SQL Basics**: `SELECT`, `FROM`, `WHERE`, `ORDER BY`, `LIMIT`, `DISTINCT`, `AS`, basic operators and arithemetic
 * **Aggregation**: `GROUP BY`, `HAVING`, `COUNT()`, `AVG()`, `ROUND()`, `WITH ROLLUP`
 * **Joins/Combination Queries**: `INNER JOIN`, `LEFT JOIN`, `USING()`, subqueries in `SELECT`, `FROM`, and `WHERE` clauses
 * **Conditional Expressions**: `CASE WHEN ... THEN ... ELSE ... END`, `COALESCE()`, `IS NULL`, `IS NOT NULL`
-* **Table Design**: `CREATE TABLE AS`, `ALTER TABLE ADD COLUMN`, `GENERATED ALWAYS AS () STORED`
+* **Table Design/Transformation**: `CREATE TABLE AS`, `ALTER TABLE ADD COLUMN`, `GENERATED ALWAYS AS () STORED`
+* **Stored Procedures**: `DROP PROCEDURE IF EXISTS`, `CREATE PROCEDURE (IN ...)`, `DELIMITER`, `SET`, `CALL`
+* **Dynamic SQL**: `PREPARE`, `EXECUTE`, `DEALLOCATE PREPARE`, `CONCAT()`
 
 ### R Functions Used:  
 * **Data Cleaning and Manipulation**: `filter()`, `mutate()`, `select()`, `left_join()`, `arrange()`, `group_by()`, `rename()`, `case_when()`, `if_else()`, `as.factor()`, `as.character()`, `round()`, `is.na()`  
