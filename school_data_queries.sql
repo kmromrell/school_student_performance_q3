@@ -332,95 +332,47 @@ ORDER BY count DESC;
 
 -- Absences/grades as grouped by demographic factors (for table "Summary of Demographic Factors")
 
--- SPED
-SELECT
-	COUNT(*) AS iep_num,
-	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
-	ROUND(AVG(absence_perc), 2) AS avg_absence,
-	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
-	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
-	ROUND(AVG(pass_or_fail), 2) AS pass_rate,
-	ROUND(AVG(c_or_higher), 2) AS c_or_higher_rate
-FROM all_student_data
-GROUP BY sped;
+-- Utilizing stored procedure in order to reduce unnecessary repetition
 
--- Section 504
-SELECT
-	COUNT(*) AS sec_504_num,
-	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
-	ROUND(AVG(absence_perc), 2) AS avg_absence,
-	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
-	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
-	ROUND(AVG(pass_or_fail), 2) AS pass_rate,
-	ROUND(AVG(c_or_higher), 2) AS c_or_higher_rate
-FROM all_student_data
-GROUP BY sec_504;
+DROP PROCEDURE IF EXISTS demographics;
 
--- ELL
-SELECT
-	COUNT(*) AS ell_num,
-	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
-	ROUND(AVG(absence_perc), 2) AS avg_absence,
-	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
-	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
-	ROUND(AVG(pass_or_fail), 2) AS pass_rate,
-	ROUND(AVG(c_or_higher), 2) AS c_or_higher_rate
-FROM all_student_data
-GROUP BY ell;
+DELIMITER $$
 
--- TAG
-SELECT
-	COUNT(*) AS tag_num,
-	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
-	ROUND(AVG(absence_perc), 2) AS avg_absence,
-	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
-	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
-	ROUND(AVG(pass_or_fail), 2) AS pass_rate,
-	ROUND(AVG(c_or_higher), 2) AS c_or_higher_rate
-FROM all_student_data
-GROUP BY tag;
+CREATE PROCEDURE demographics(IN demographic_column VARCHAR(20))
+BEGIN 
+	SET @demog_query = CONCAT(
+		'SELECT ',
+			demographic_column, ', ',
+			'COUNT(*) AS count, ',
+			'ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students, ',
+			'ROUND(AVG(absence_perc), 2) AS avg_absence, ',
+			'ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs, ',  
+			'ROUND(AVG(grade_point_dec), 2) AS avg_grade, ',
+			'ROUND(AVG(pass_or_fail), 2) AS pass_rate, ',
+			'ROUND(AVG(c_or_higher), 2) AS c_or_higher_rate ',
+		'FROM all_student_data ',
+		'GROUP BY ', demographic_column
+);
+	PREPARE demog_stmt FROM @demog_query;
+	EXECUTE demog_stmt;
+	DEALLOCATE PREPARE demog_stmt;
+END $$
 
--- Transfer
-SELECT
-	COUNT(*) AS transfer_num,
-	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
-	ROUND(AVG(absence_perc), 2) AS avg_absence,
-	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
-	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
-	ROUND(AVG(pass_or_fail), 2) AS pass_rate,
-	ROUND(AVG(c_or_higher), 2) AS c_or_higher_rate
-FROM all_student_data
-GROUP BY transfer;
+DELIMITER ;
 
--- Gender
-SELECT
-	gender,
-	COUNT(*) AS nb_num,
-	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
-	ROUND(AVG(absence_perc), 2) AS avg_absence,
-	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
-	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
-	ROUND(AVG(pass_or_fail), 2) AS pass_rate,
-	ROUND(AVG(c_or_higher), 2) AS c_or_higher_rate
-FROM all_student_data
-GROUP BY gender;
+CALL demographics('sped');
+CALL demographics('sec_504');
+CALL demographics('ell');
+CALL demographics('tag');
+CALL demographics('transfer');
+CALL demographics('gender');
 
 
 
 -- Absences/grades as grouped by school goupings (for tables at the end of the report)
 
 -- Grade Level
-SELECT
-	grade_level,
-	COUNT(*) AS count,
-	ROUND(COUNT(*) / 8350.0, 2) AS perc_of_students,
-	ROUND(AVG(absence_perc), 2) AS avg_absence,
-	ROUND(AVG((ss_absences)*100/18), 2) AS avg_ss_abs,  
-	ROUND(AVG(grade_point_dec), 2) AS avg_grade,
-	ROUND(AVG(pass_or_fail), 2) AS pass_rate,
-	ROUND(AVG(c_or_higher), 2) AS c_or_higher_rate
-FROM all_student_data
-GROUP BY grade_level;
+CALL demographics('grade_level');
 
 -- Department for all classes (with ROLLUP)
 SELECT
